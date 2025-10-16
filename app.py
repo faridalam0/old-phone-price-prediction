@@ -1,28 +1,34 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import gdown
+import requests
 from sklearn.preprocessing import LabelEncoder
 
-# === Download model from Google Drive ===
+# === Download model from Google Drive via requests ===
 file_id = "1dkNGLbBBXANZcWqWaR0atvxNvCss4Iuu"
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "old_phone.pkl"
 
-st.write("📥 Downloading model from Google Drive…")
+st.write("📥 Downloading model from Google Drive...")
 try:
-    gdown.download(url, output, quiet=False)
-    st.success("✅ Model downloaded.")
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(output, "wb") as f:
+            f.write(response.content)
+        st.success("✅ Model downloaded successfully!")
+    else:
+        st.error(f"❌ Download failed with status code {response.status_code}")
+        st.stop()
 except Exception as e:
-    st.error("❌ Error downloading model.")
-    st.write(e)
+    st.error(f"❌ Error downloading model: {e}")
     st.stop()
 
 # === Load model ===
 with open(output, "rb") as f:
     model = pickle.load(f)
+st.success("✅ Model loaded successfully!")
 
-# === Load dataset (ensure dataset.csv is present in same folder or also download it) ===
+# === Load dataset (locally hosted or also from Drive) ===
 df = pd.read_csv("dataset.csv")
 
 brand_model_map = df.groupby('brand')['model'].unique().to_dict()
@@ -66,4 +72,3 @@ input_data = pd.DataFrame({
 if st.sidebar.button("Predict"):
     predicted_price = model.predict(input_data)[0]
     st.success(f"Estimated Old Phone Price: ₹{int(predicted_price):,}")
-
