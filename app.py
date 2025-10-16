@@ -5,16 +5,24 @@ import gdown
 from sklearn.preprocessing import LabelEncoder
 
 # === Download model from Google Drive ===
-FILE_ID = "1dkNGLbBBXANZcWqWaR0atvxNvCss4Iuu"
-url = f"https://drive.google.com/uc?id={FILE_ID}"
+file_id = "1dkNGLbBBXANZcWqWaR0atvxNvCss4Iuu"
+url = f"https://drive.google.com/uc?id={file_id}"
 output = "old_phone.pkl"
-gdown.download(url, output, quiet=True)
+
+st.write("📥 Downloading model from Google Drive…")
+try:
+    gdown.download(url, output, quiet=False)
+    st.success("✅ Model downloaded.")
+except Exception as e:
+    st.error("❌ Error downloading model.")
+    st.write(e)
+    st.stop()
 
 # === Load model ===
-with open(output, 'rb') as f:
+with open(output, "rb") as f:
     model = pickle.load(f)
 
-# === Load dataset (upload dataset.csv in same folder or also from Drive) ===
+# === Load dataset (ensure dataset.csv is present in same folder or also download it) ===
 df = pd.read_csv("dataset.csv")
 
 brand_model_map = df.groupby('brand')['model'].unique().to_dict()
@@ -32,7 +40,6 @@ battery = st.sidebar.slider("Battery health (%)", 50, 100, 80)
 age = st.sidebar.slider("Age of Phone (Years)", 0, 5, 1)
 original_price = st.sidebar.number_input("Original Price (INR)", 3000, 100000, 15000)
 
-# Label Encoding
 le_brand = LabelEncoder()
 le_model = LabelEncoder()
 le_condition = LabelEncoder()
