@@ -9,7 +9,7 @@ file_id = "1dkNGLbBBXANZcWqWaR0atvxNvCss4Iuu"
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "old_phone.pkl"
 
-st.write("📥 Downloading model from Google Drive...")
+st.write("Retrieving model from cloud storage")
 try:
     response = requests.get(url)
     if response.status_code == 200:
@@ -44,7 +44,7 @@ storage = st.sidebar.selectbox("Storage (GB)", sorted(df['storage_gb'].unique())
 condition = st.sidebar.selectbox("Condition", df['condition'].unique())
 battery = st.sidebar.slider("Battery health (%)", 50, 100, 80)
 age = st.sidebar.slider("Age of Phone (Years)", 0, 5, 1)
-original_price = st.sidebar.number_input("Original Price (INR)", 3000, 100000, 15000)
+original_price = st.sidebar.number_input("Original Price (INR)", 3000, 100000, 15000, step=500)
 
 le_brand = LabelEncoder()
 le_model = LabelEncoder()
